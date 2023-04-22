@@ -1,0 +1,17 @@
+{:source-paths ["src"]
+ :dependencies [[binaryage/devtools "1.0.6"]
+                [nrepl "1.0.0"]
+                [reagent "1.1.1"]
+                [lambdaisland/fetch "1.2.69"]
+                [cljs-http "0.1.46"]]
+ :builds       {:app {:target     :browser
+                      :output-dir "public/js"
+                      :asset-path "/js"
+                      :modules    {:app {:entries [cockpit-ssh-keys.core]}}
+                      :devtools   {:after-load cockpit-ssh-keys.core/mount-root}}
+
+                :code {:target :npm-module
+                       :output-dir "out"
+                       :entries [cockpit-ssh-keys.core]}}
+
+ :dev-http     {3000 {:root "public"}}}

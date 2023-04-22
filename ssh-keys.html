@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SSH Keys</title>
+    <meta charset="utf-8">
+    <script src="../base1/cockpit.js"></script>
+    <link href="style.css" type="text/css" rel="stylesheet">
+  </head>
+  <body class="pf-m-redhat-font pf-m-tabular-nums">
+    <div class="ct-page-fill" id="apps-page">
+      <div id="list-page" class="pf-c-page pf-m-resize-observer pf-m-breakpoint-md pf-m-height-breakpoint-2xl">
+        <main class="pf-c-page__main" tabindex="-1">
+          <section class="pf-c-page__main-section pf-m-light">
+            <div class="pf-l-flex pf-m-align-items-center">
+              <h2 class="pf-u-font-size-3xl">SSH Keys</h2>
+              <div class="pf-m-align-right">
+                <div class="pf-l-flex">
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section>
+
+            <div id="app">
+              <h3>ClojureScript has not been compiled!</h3>
+              <p>
+                please run <b>npx shadow-cljs watch app</b> in order
+                to start the compiler
+              </p>
+            </div>
+
+            <div id="test">
+            </div>
+
+            <div>
+              <div>
+                <label for="address">Address</label>
+                <input id="address" value="8.8.8.8">
+              </div>
+              <div>
+                <button id="ping">Ping</button>
+                <span id="result"></span>
+              </div>
+              <div>
+                <pre id="output"></pre>
+              </div>
+            </div>
+
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script src="public/js/app.js" type="text/javascript"></script>
+    <script src="pinger.js"></script>
+  </body>
+</html>
