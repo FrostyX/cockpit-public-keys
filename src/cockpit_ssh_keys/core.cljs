@@ -1,10 +1,11 @@
 (ns cockpit-ssh-keys.core
   (:require-macros [cljs.core.async.macros :refer [go]])
     (:require
-      [reagent.core :as r]
-      [reagent.dom :as d]
-      [lambdaisland.fetch :as fetch]
-      [goog.object :as gobj]))
+     [clojure.string :as str]
+     [reagent.core :as r]
+     [reagent.dom :as d]
+     [lambdaisland.fetch :as fetch]
+     [goog.object :as gobj]))
 
 
 ;; https://api.github.com/search/users?q=frostyx
@@ -25,6 +26,9 @@
 ;; Searched login
 (def login (r/atom ""))
 
+;; List of authorized keys for the current user
+(def authorized-keys (r/atom []))
+
 
 (defn search-github-user [login]
   (-> (fetch/get (str "https://api.github.com/search/users?q=" login)
@@ -38,6 +42,35 @@
                          {:login (gobj/get val "login")
                           :avatar_url (gobj/get val "avatar_url")
                           :html_url (gobj/get val "html_url")})))))))
+
+
+(defn get-pubkeys [user]
+  (let [path (str (:home user) "/.ssh/authorized_keys")]
+    (-> (js/cockpit.file path)
+        (.read)
+        (.then (fn [content tag]
+                 content))
+        (.catch (fn [error]
+                 (js/console.log "Error:")
+                 (js/console.log error))))))
+
+
+(defn parse-pubkeys [text]
+  (str/split text #"\n"))
+
+
+(defn current-user []
+  (-> (js/cockpit.user)
+      (.then (fn [user]
+               (js->clj user :keywordize-keys true)))))
+
+
+(defn load-pubkeys []
+  (-> (current-user)
+      (.then get-pubkeys)
+      (.then parse-pubkeys)
+      (.then (fn [keys]
+               (reset! authorized-keys keys)))))
 
 
 (defn render-form []
@@ -66,6 +99,8 @@
 
 
 (defn home-page []
+  (load-pubkeys)
+
   [:div [:h2 "Welcome to Reagent"]
    (render-form)
    (render-table)])
