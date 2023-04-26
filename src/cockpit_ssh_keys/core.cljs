@@ -36,6 +36,7 @@
 
 (def dialog-for-user (r/atom nil))
 (def full-user (r/atom nil))
+(def pubkey (r/atom nil))
 
 
 (defn search-github-user [login]
@@ -59,6 +60,13 @@
       (.then (fn [resp] (-> resp :body (js->clj :keywordize-keys true))))
       (.then (fn [user]
                (reset! full-user user)))))
+
+
+(defn query-pubkey-from-github [user]
+  (-> (fetch/get (str (:url user) "/keys") {:accept :json :content-type :json})
+      (.then (fn [resp] (-> resp :body (js->clj :keywordize-keys true))))
+      (.then (fn [keys]
+               (reset! pubkey (:key (first keys)))))))
 
 
 (defn get-pubkeys [user]
@@ -101,8 +109,12 @@
 
 ;; https://api.github.com/users/FrostyX
 (defn render-modal-profile-body []
-  (query-full-github-user @dialog-for-user)
-  (when @full-user
+  (when (not @full-user)
+    (query-full-github-user @dialog-for-user))
+
+  (when (not @pubkey)
+    (query-pubkey-from-github @dialog-for-user))
+
   (let [user @full-user]
     [:div
      [:img {:src (:avatar_url user) :width 150 :height 150}]
@@ -116,8 +128,14 @@
      [:p (:public_gists user)]
      [:p [:i {:class "fas fa-user-friends"}] (:followers user)]
      [:p (:following user)]
-     [:p [:i {:class "fas fa-key"}] "TODO Public key"]
-     [:p (:html_url user)]])))
+     [:p [:i {:class "fas fa-key"}] @pubkey]
+     [:p (:html_url user)]]))
+
+
+(defn close-modal-profile []
+  (reset! dialog-for-user nil)
+  (reset! full-user nil)
+  (reset! pubkey nil))
 
 
 (defn render-modal-profile []
@@ -142,7 +160,7 @@
         [:button {:class "pf-c-button pf-m-primary" :type "button"} "Add SSH key"]
         [:button {:class "pf-c-button pf-m-link"
                   :type "button"
-                  :on-click #(reset! dialog-for-user nil)}
+                  :on-click #(close-modal-profile)}
          "Cancel"]]]]]))
 
 
