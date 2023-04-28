@@ -65,8 +65,10 @@
 (defn query-pubkey-from-github [user]
   (-> (fetch/get (str (:url user) "/keys") {:accept :json :content-type :json})
       (.then (fn [resp] (-> resp :body (js->clj :keywordize-keys true))))
-      (.then (fn [keys]
-               (reset! pubkey (:key (first keys)))))))
+      (.then (fn [keys] (:key (first keys))))
+      (.then (fn [key]
+               (when key
+                 (reset! pubkey (str key " github.com/" (:login user))))))))
 
 
 (defn get-pubkeys [user]
