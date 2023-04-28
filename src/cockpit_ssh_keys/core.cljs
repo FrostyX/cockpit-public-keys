@@ -170,7 +170,8 @@
       [:img {:src (:avatar_url user) :width 170 :height 170}]]
      [:div {:class "pf-l-grid__item pf-m-9-col"}
       [:p {:class "pf-u-font-size-2xl"} (:name user)]
-      [:p {:class "pf-u-font-size-xl"} [:a {:href (:html_url user)} (:login user)]]
+      [:p {:class "pf-u-font-size-xl"}
+       [:a {:href (:html_url user) :target "_blank"} (:login user)]]
 
       [:div {:id "following"}
        [:ul {:class "pf-c-list pf-m-plain"}
@@ -186,7 +187,7 @@
         (li-with-icon "fas fa-building fa-fw" (:company user))
         (li-with-icon "fas fa-map-marker fa-fw" (:location user))
         (li-with-icon "fas fa-external-link-alt fa-fw"
-                      [:a {:href (:blog user)} (:blog user)])]]]
+                      [:a {:href (:blog user) :target "_blank"} (:blog user)])]]]
 
      [:div {:id "pubkey"}
       (render-code-block @pubkey)]]))
@@ -237,8 +238,8 @@
     (for [user @users]
       [:tr
        [:td {} [:img {:src (:avatar_url user) :width 50 :height 50}]]
-       [:td {} [:a {:href (:html_url user)} (:login user)]]
-       [:td {} [:a {:href (:html_url user)} (:html_url user)]]
+       [:td {} [:a {:href (:html_url user) :target "_blank"} (:login user)]]
+       [:td {} [:a {:href (:html_url user) :target "_blank"} (:html_url user)]]
        [:td {} [:button {:class "pf-c-button pf-m-secondary"
                          :on-click #(reset! dialog-for-user user)}
                 "Allow this user"]]])]])
