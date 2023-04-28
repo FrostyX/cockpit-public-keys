@@ -107,6 +107,34 @@
             :on-click #(search-github-user @login)}]])
 
 
+(defn render-code-block [code]
+  [:div {:class "pf-c-code-block"}
+   [:div {:class "pf-c-code-block__header"}
+    [:div {:class "pf-c-code-block__actions"}
+
+     [:div {:class "pf-c-code-block__actions-item"}
+      [:button {:class "pf-c-button pf-m-plain"
+                :type "button"
+                :aria-label "Copy to clipboard"}
+       [:i {:class "fas fa-copy", :aria-hidden "true"}]]]
+
+     [:div {:class "pf-c-code-block__actions-item"}
+      [:button {:class "pf-c-button pf-m-plain"
+                :type "button"}
+       [:i {:class "fas fa-key"}]]]]]
+
+   [:div {:class "pf-c-code-block__content"}
+    [:pre {:class "pf-c-code-block__pre"}
+     [:code {:class "pf-c-code-block__code"} code]]]])
+
+
+(defn li-with-icon [icon text]
+  [:li {:class "pf-c-list__item"}
+   [:span {:class "pf-c-list__item-icon "}
+    [:i {:class icon}]]
+   [:span {:class "pf-c-list__item-text"} text]])
+
+
 ;; https://api.github.com/users/FrostyX
 (defn render-modal-profile-body []
   (when (not @full-user)
@@ -116,20 +144,31 @@
     (query-pubkey-from-github @dialog-for-user))
 
   (let [user @full-user]
-    [:div
-     [:img {:src (:avatar_url user) :width 150 :height 150}]
-     [:p (:name user)]
-     [:p [:i {:class ""}] (:login user)]
-     [:p [:i {:class "pf-icon pf-icon-enterprise"}] (:company user)]
-     [:p [:i {:class "fas fa-external-link-alt"}] (:blog user)]
-     [:p [:i {:class "fas fa-map-marker"}] (:location user)]
-     [:p [:i {:class ""}] (:login user)]
-     [:p [:i {:class "pf-icon pf-icon-repository"}] (:public_repos user)]
-     [:p (:public_gists user)]
-     [:p [:i {:class "fas fa-user-friends"}] (:followers user)]
-     [:p (:following user)]
-     [:p [:i {:class "fas fa-key"}] @pubkey]
-     [:p (:html_url user)]]))
+    [:div {:class "pf-l-grid"}
+     [:div {:class "pf-l-grid__item pf-m-3-col"}
+      [:img {:src (:avatar_url user) :width 170 :height 170}]]
+     [:div {:class "pf-l-grid__item pf-m-9-col"}
+      [:p {:class "pf-u-font-size-2xl"} (:name user)]
+      [:p {:class "pf-u-font-size-xl"} [:a {:href (:html_url user)} (:login user)]]
+
+      [:div {:id "following"}
+       [:ul {:class "pf-c-list pf-m-plain"}
+        [:li
+         [:i {:class "fas fa-user-friends pf-u-color-200"}]
+         " " (:followers user) [:span {:class "pf-u-color-200"} " followers · "]]
+        [:li (:following user) [:span {:class "pf-u-color-200"} " following · "]]
+        [:li (:public_repos user) [:span {:class "pf-u-color-200"} " repos · "]]
+        [:li (:public_gists user) [:span {:class "pf-u-color-200"} " gists"]]]]
+
+      [:div {:id "locations"}
+       [:ul {:class "pf-c-list pf-m-plain"}
+        (li-with-icon "fas fa-building fa-fw" (:company user))
+        (li-with-icon "fas fa-map-marker fa-fw" (:location user))
+        (li-with-icon "fas fa-external-link-alt fa-fw"
+                      [:a {:href (:blog user)} (:blog user)])]]]
+
+     [:div {:id "pubkey"}
+      (render-code-block @pubkey)]]))
 
 
 (defn close-modal-profile []
@@ -142,7 +181,7 @@
   (when @dialog-for-user
     [:div {:class "pf-c-backdrop"}
      [:div {:class "pf-l-bullseye"}
-      [:div {:class "pf-c-modal-box pf-m-sm"
+      [:div {:class "pf-c-modal-box pf-m-md"
              :role "dialog"
              :aria-modal "true"
              :aria-labelledby "modal-title-modal-basic-example-modal"
@@ -157,7 +196,7 @@
         (render-modal-profile-body)]
 
        [:footer {:class "pf-c-modal-box__footer"}
-        [:button {:class "pf-c-button pf-m-primary" :type "button"} "Add SSH key"]
+        [:button {:class "pf-c-button pf-m-primary" :type "button"} "Authorize"]
         [:button {:class "pf-c-button pf-m-link"
                   :type "button"
                   :on-click #(close-modal-profile)}
