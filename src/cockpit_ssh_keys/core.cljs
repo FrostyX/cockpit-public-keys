@@ -117,7 +117,9 @@
                   :name "login"
                   :placeholder "Search your GitHub account"
                   :value @login
-                  :on-change #(reset! login (.-value (.-target %)))}]]]]]
+                  :on-change #(reset! login (.-value (.-target %)))
+                  :on-key-press (fn [e] (when (= (.-key e) "Enter")
+                                          (search-github-user @login)))}]]]]]
 
      [:div {:class "pf-c-toolbar__item"}
       [:button {:class "pf-c-button pf-m-primary"
