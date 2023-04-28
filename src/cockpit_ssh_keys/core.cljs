@@ -52,7 +52,7 @@
                          {:login (gobj/get val "login")
                           :avatar_url (gobj/get val "avatar_url")
                           :html_url (gobj/get val "html_url")
-                          :url (gobj/get val "html_url")})))))))
+                          :url (gobj/get val "url")})))))))
 
 
 (defn query-full-github-user [user]
