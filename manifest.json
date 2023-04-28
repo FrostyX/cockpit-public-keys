@@ -3,8 +3,8 @@
 
     "tools": {
         "pinger": {
-            "label": "SSH keys",
-            "path": "ssh-keys.html"
+            "label": "Public keys",
+            "path": "index.html"
         }
     },
 
