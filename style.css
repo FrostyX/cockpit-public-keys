@@ -1,19 +1,27 @@
 li {
-    margin-top: 0px !important;
+  margin-top: 0px !important;
 }
 
 .pf-c-list__item-icon i {
-    font-size: var(--pf-global--FontSize--sm);
+  font-size: var(--pf-global--FontSize--sm);
 }
 
 #following {
-    margin-top: 10px;
+  margin-top: 10px;
 }
 
 #following li {
-    display: inline;
+  display: inline;
 }
 
 #locations {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+td img {
+  vertical-align: middle;
+}
+
+#search {
+    width: 270px;
 }

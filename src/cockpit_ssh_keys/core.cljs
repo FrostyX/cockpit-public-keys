@@ -99,12 +99,33 @@
 
 
 (defn render-form []
-  [:form {}
-   [:input {:type "text" :placeholder "Search your GitHub account"
-            :name "login" :value @login
-            :on-change #(reset! login (.-value (.-target %)))}]
-   [:input {:type "button" :value "CLICK"
-            :on-click #(search-github-user @login)}]])
+  [:div {:class "pf-c-toolbar"}
+   [:div {:class "pf-c-toolbar__content accounts-toolbar-header"}
+    [:div {:class "pf-c-toolbar__content-section"}
+     [:div {:class "pf-c-toolbar__item"}
+      [:div {:class "pf-c-text-input-group"}
+
+       [:div {:class "pf-c-text-input-group__main pf-m-icon"}
+        [:span {:class "pf-c-text-input-group__text"}
+         [:span {:class "pf-c-text-input-group__icon"}
+          [:i {:class "fas fa-search", :aria-hidden "true"}]]
+         [:input {:type "text"
+                  :id "search"
+                  :class "pf-c-text-input-group__text-input"
+                  :name "login"
+                  :placeholder "Search your GitHub account"
+                  :value @login
+                  :on-change #(reset! login (.-value (.-target %)))}]]]]]
+
+     [:div {:class "pf-c-toolbar__item"}
+      [:button {:class "pf-c-button pf-m-primary"
+                :type "button"
+                :on-click #(search-github-user @login)}
+       "Search"]]]
+    [:div {:class "pf-c-toolbar__expandable-content"}
+     [:div {:class "pf-c-toolbar__group"}]]]
+   [:div {:class "pf-c-toolbar__content pf-m-hidden"}
+    [:div {:class "pf-c-toolbar__group pf-m-hidden"}]]])
 
 
 (defn render-code-block [code]
@@ -210,22 +231,22 @@
     [:tr
      [:th {:scope "col"} "Avatar"]
      [:th {:scope "col"} "Username"]
-     [:th {:scope "col"} "Enable"]
-     [:th {:scope "col"} "GitHub URL"]]]
+     [:th {:scope "col"} "GitHub URL"]
+     [:th {:scope "col"} "Enable"]]]
    [:tbody {:role "rowgroup"}
     (for [user @users]
       [:tr
        [:td {} [:img {:src (:avatar_url user) :width 50 :height 50}]]
        [:td {} [:a {:href (:html_url user)} (:login user)]]
-       [:td {} [:button {:on-click #(reset! dialog-for-user user)}
-                "Allow this user"]]
-       [:td {} [:a {:href (:html_url user)} (:html_url user)]]])]])
+       [:td {} [:a {:href (:html_url user)} (:html_url user)]]
+       [:td {} [:button {:class "pf-c-button pf-m-secondary"
+                         :on-click #(reset! dialog-for-user user)}
+                "Allow this user"]]])]])
 
 
 (defn home-page []
   (load-pubkeys)
-
-  [:div [:h2 "Welcome to Reagent"]
+  [:div
    (render-modal-profile)
    (render-form)
    (render-table)])
