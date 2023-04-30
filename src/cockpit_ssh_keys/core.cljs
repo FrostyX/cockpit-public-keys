@@ -42,17 +42,17 @@
 (defn search-github-user [login]
   (-> (fetch/get (str "https://api.github.com/search/users?q=" login)
                  {:accept :json :content-type :json})
-      (.then (fn [resp] (-> resp :body (gobj/get "items"))))
+      (.then (fn [resp] (-> resp :body (js->clj :keywordize-keys true))))
+      (.then (fn [resp] (:items resp)))
       (.then (fn [items]
                (js/console.log items)
-               (gobj/forEach
-                items
-                (fn [val key items]
-                  (swap! users conj
-                         {:login (gobj/get val "login")
-                          :avatar_url (gobj/get val "avatar_url")
-                          :html_url (gobj/get val "html_url")
-                          :url (gobj/get val "url")})))))))
+               (reset! users
+                       (map (fn [item]
+                              {:login (:login item)
+                               :avatar_url (:avatar_url item)
+                               :html_url (:html_url item)
+                               :url (:url item)})
+                            items))))))
 
 
 (defn query-full-github-user [user]
