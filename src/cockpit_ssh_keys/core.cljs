@@ -106,6 +106,18 @@
                          (js/console.log error)))))))))
 
 
+(defn delete-pubkey [key]
+  (-> (current-user)
+      (.then (fn [user]
+         (let [path (str (:home user) "/.ssh/authorized_keys")]
+           (-> (js/cockpit.file path)
+               (.modify (fn [content] (str/replace content key "")))
+               (.then (fn [&args] (close-modal-profile)))
+               (.catch (fn [error]
+                         (js/console.log "Error:")
+                         (js/console.log error)))))))))
+
+
 (defn parse-pubkeys [text]
   (str/split text #"\n"))
 
@@ -231,17 +243,34 @@
          "Authorize this user?"]]
        [:div {:class "pf-c-modal-box__body"
               :id "modal-description-modal-basic-example-modal"}
-        (render-modal-profile-body)]
+        (render-modal-profile-body)
+
+        (when (some #{@pubkey} @authorized-keys)
+          [:div {:id "known-key"}
+           [:p {:class "pf-u-danger-color-100"}
+            (str "This public key was already found in authorized keys. "
+                 "Do you want to delete it?")]])]
 
        [:footer {:class "pf-c-modal-box__footer"}
-        [:button {:class "pf-c-button pf-m-primary"
-                  :type "button"
-                  :on-click #(append-pubkey @pubkey)}
-         "Authorize"]
+
+        (if (some #{@pubkey} @authorized-keys)
+          [:button {:class "pf-c-button pf-m-danger"
+                    :type "button"
+                    :on-click #(delete-pubkey @pubkey)}
+           "Delete"]
+
+          [:button {:class "pf-c-button pf-m-primary"
+                    :type "button"
+                    :on-click #(append-pubkey @pubkey)}
+           "Authorize"])
+
         [:button {:class "pf-c-button pf-m-link"
                   :type "button"
                   :on-click #(close-modal-profile)}
          "Cancel"]]]]]))
+
+(defn pubkey-already-enabled? [user]
+  (some #(str/ends-with? % (str "github.com/" (:login user))) @authorized-keys))
 
 
 (defn render-table []
@@ -259,9 +288,15 @@
        [:td {} [:img {:src (:avatar_url user) :width 50 :height 50}]]
        [:td {} [:a {:href (:html_url user) :target "_blank"} (:login user)]]
        [:td {} [:a {:href (:html_url user) :target "_blank"} (:html_url user)]]
-       [:td {} [:button {:class "pf-c-button pf-m-secondary"
-                         :on-click #(reset! dialog-for-user user)}
-                "Allow this user"]]])]])
+       [:td {}
+        (if (pubkey-already-enabled? user)
+            [:button {:class "pf-c-button pf-m-secondary pf-m-danger"
+                      :on-click #(reset! dialog-for-user user)}
+             "Deny this user"]
+
+            [:button {:class "pf-c-button pf-m-secondary"
+                      :on-click #(reset! dialog-for-user user)}
+             "Allow this user"])]])]])
 
 
 (defn home-page []

@@ -23,5 +23,9 @@ td img {
 }
 
 #search {
-    width: 270px;
+  width: 270px;
+}
+
+#known-key {
+  margin-top: 30px;
 }
