@@ -82,14 +82,32 @@
                  (js/console.log error))))))
 
 
-(defn parse-pubkeys [text]
-  (str/split text #"\n"))
-
-
 (defn current-user []
   (-> (js/cockpit.user)
       (.then (fn [user]
                (js->clj user :keywordize-keys true)))))
+
+
+(defn close-modal-profile []
+  (reset! dialog-for-user nil)
+  (reset! full-user nil)
+  (reset! pubkey nil))
+
+
+(defn append-pubkey [key]
+  (-> (current-user)
+      (.then (fn [user]
+         (let [path (str (:home user) "/.ssh/authorized_keys")]
+           (-> (js/cockpit.file path)
+               (.modify (fn [content] (str/join "\n" [content key])))
+               (.then (fn [&args] (close-modal-profile)))
+               (.catch (fn [error]
+                         (js/console.log "Error:")
+                         (js/console.log error)))))))))
+
+
+(defn parse-pubkeys [text]
+  (str/split text #"\n"))
 
 
 (defn load-pubkeys []
@@ -197,12 +215,6 @@
       (render-code-block @pubkey)]]))
 
 
-(defn close-modal-profile []
-  (reset! dialog-for-user nil)
-  (reset! full-user nil)
-  (reset! pubkey nil))
-
-
 (defn render-modal-profile []
   (when @dialog-for-user
     [:div {:class "pf-c-backdrop"}
@@ -222,7 +234,10 @@
         (render-modal-profile-body)]
 
        [:footer {:class "pf-c-modal-box__footer"}
-        [:button {:class "pf-c-button pf-m-primary" :type "button"} "Authorize"]
+        [:button {:class "pf-c-button pf-m-primary"
+                  :type "button"
+                  :on-click #(append-pubkey @pubkey)}
+         "Authorize"]
         [:button {:class "pf-c-button pf-m-link"
                   :type "button"
                   :on-click #(close-modal-profile)}
