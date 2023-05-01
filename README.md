@@ -9,6 +9,20 @@ their public SSH keys with just one click.
 In the future, I would like to support searching in FAS as well, but
 it requires authorization for any kind of request, so I don't know how.
 
+## Screenshots
+
+Search your GitHub username
+
+![Screenshot](screenshots/search.png)
+
+Pick the correct account
+
+![Screenshot](screenshots/table.png)
+
+Authorize your public key
+
+![Screenshot](screenshots/modal.png)
+
 
 ## Project structure
 
