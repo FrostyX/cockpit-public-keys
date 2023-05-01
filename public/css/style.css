@@ -22,10 +22,18 @@ td img {
   vertical-align: middle;
 }
 
-#search {
+#top-search input {
   width: 270px;
 }
 
 #known-key {
   margin-top: 30px;
+}
+
+.pf-c-empty-state__icon {
+  margin-bottom: 10px !important;
+}
+
+.pf-c-title {
+  margin-bottom: 10px !important;
 }

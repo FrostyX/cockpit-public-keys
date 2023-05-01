@@ -5,7 +5,9 @@
      [reagent.core :as r]
      [reagent.dom :as d]
      [lambdaisland.fetch :as fetch]
-     [goog.object :as gobj]))
+     [goog.object :as gobj]
+     [goog.string :as gstring]
+     [goog.string.format]))
 
 
 ;; https://api.github.com/search/users?q=frostyx
@@ -130,11 +132,7 @@
                (reset! authorized-keys keys)))))
 
 
-(defn render-form []
-  [:div {:class "pf-c-toolbar"}
-   [:div {:class "pf-c-toolbar__content accounts-toolbar-header"}
-    [:div {:class "pf-c-toolbar__content-section"}
-     [:div {:class "pf-c-toolbar__item"}
+(defn render-search []
       [:div {:class "pf-c-text-input-group"}
 
        [:div {:class "pf-c-text-input-group__main pf-m-icon"}
@@ -142,20 +140,28 @@
          [:span {:class "pf-c-text-input-group__icon"}
           [:i {:class "fas fa-search", :aria-hidden "true"}]]
          [:input {:type "text"
-                  :id "search"
                   :class "pf-c-text-input-group__text-input"
                   :name "login"
                   :placeholder "Search your GitHub account"
                   :value @login
                   :on-change #(reset! login (.-value (.-target %)))
                   :on-key-press (fn [e] (when (= (.-key e) "Enter")
-                                          (search-github-user @login)))}]]]]]
+                                          (search-github-user @login)))}]]]
 
-     [:div {:class "pf-c-toolbar__item"}
+       [:div {:class "pf-c-toolbar__item"}
       [:button {:class "pf-c-button pf-m-primary"
                 :type "button"
                 :on-click #(search-github-user @login)}
-       "Search"]]]
+       "Search"]]])
+
+
+(defn render-top-search []
+  [:div {:class "pf-c-toolbar"}
+   [:div {:class "pf-c-toolbar__content accounts-toolbar-header"}
+    [:div {:class "pf-c-toolbar__content-section"}
+     [:div {:class "pf-c-toolbar__item"}
+      [:div {:id "top-search"}
+       (render-search)]]]
     [:div {:class "pf-c-toolbar__expandable-content"}
      [:div {:class "pf-c-toolbar__group"}]]]
    [:div {:class "pf-c-toolbar__content pf-m-hidden"}
@@ -273,6 +279,29 @@
   (some #(str/ends-with? % (str "github.com/" (:login user))) @authorized-keys))
 
 
+(defn render-empty-state [icon title text]
+  [:div {:class "pf-c-empty-state"}
+   [:div {:class "pf-c-empty-state__content"}
+    [:i {:class ["pf-c-empty-state__icon" icon] :aria-hidden "true"}]
+    [:h1 {:class "pf-c-title pf-m-lg"} title]
+    (render-search)
+    [:div {:class "pf-c-empty-state__body"} text]]])
+
+
+(defn render-not-found []
+  (render-empty-state
+   "fas fa-search"
+   "Not Found"
+   "Couldn't find any such GitHub user. Maybe a typo?"))
+
+
+(defn render-start-searching []
+  (render-empty-state
+   "fas fa-search"
+   "Start Searching"
+   "No GitHub users authorized yet. Start searching and allow them."))
+
+
 (defn render-table []
   [:table {:role "grid"
            :class "ct-table pf-c-table pf-m-grid-md pf-m-compact"}
@@ -303,8 +332,11 @@
   (load-pubkeys)
   [:div
    (render-modal-profile)
-   (render-form)
-   (render-table)])
+   (if (empty? @users)
+     (render-not-found)
+     [:div
+      (render-top-search)
+      (render-table)])])
 
 
 ;; -------------------------
