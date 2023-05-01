@@ -92,3 +92,5 @@ package-lock.json
 *.log
 src/dev/shadow-css-index.edn
 package-lock.json
+public/css/style.css
+public/css/style.css.map

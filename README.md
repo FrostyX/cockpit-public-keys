@@ -28,6 +28,12 @@ Install Javascript dependencies
 npm install
 ```
 
+Compile CSS files from Sass
+
+```
+make css
+```
+
 Build and see changes in your browser
 
 ```
