@@ -11,24 +11,25 @@
 
 
 ;; https://api.github.com/search/users?q=frostyx
-(def users
-  (r/atom [{:login "FrostyX"
-            :avatar_url "https://avatars.githubusercontent.com/u/2151771?v=4"
-            :html_url "https://github.com/FrostyX"
-            :url "https://api.github.com/users/FrostyX"}
-           {:login "frostyx-vk"
-            :avatar_url "https://avatars.githubusercontent.com/u/115023317?v=4"
-            :html_url "https://github.com/frostyx-vk"
-            :url "https://api.github.com/users/frostyx-vk"}
-           {:login "Frostyx0"
-            :avatar_url "https://avatars.githubusercontent.com/u/56936540?v=4"
-            :html_url "https://github.com/Frostyx0"
-            :url "https://api.github.com/users/Frostyx0"}
-           {:login "Frostyxnova"
-            :avatar_url "https://avatars.githubusercontent.com/u/90808223?v=4"
-            :html_url "https://github.com/Frostyxnova"
-            :url "https://api.github.com/users/Frostyxnova"}]))
-
+;; This will later be useful for testing
+;; (def users
+;;   (r/atom [{:login "FrostyX"
+;;             :avatar_url "https://avatars.githubusercontent.com/u/2151771?v=4"
+;;             :html_url "https://github.com/FrostyX"
+;;             :url "https://api.github.com/users/FrostyX"}
+;;            {:login "frostyx-vk"
+;;             :avatar_url "https://avatars.githubusercontent.com/u/115023317?v=4"
+;;             :html_url "https://github.com/frostyx-vk"
+;;             :url "https://api.github.com/users/frostyx-vk"}
+;;            {:login "Frostyx0"
+;;             :avatar_url "https://avatars.githubusercontent.com/u/56936540?v=4"
+;;             :html_url "https://github.com/Frostyx0"
+;;             :url "https://api.github.com/users/Frostyx0"}
+;;            {:login "Frostyxnova"
+;;             :avatar_url "https://avatars.githubusercontent.com/u/90808223?v=4"
+;;             :html_url "https://github.com/Frostyxnova"
+;;             :url "https://api.github.com/users/Frostyxnova"}]))
+(def users (r/atom nil))
 
 ;; Searched login
 (def login (r/atom ""))
@@ -299,8 +300,7 @@
   (render-empty-state
    "fas fa-search"
    "Start Searching"
-   "No GitHub users authorized yet. Start searching and allow them."))
-
+   "Search GitHub users and authorize their public keys with few mouse clicks."))
 
 (defn render-table []
   [:table {:role "grid"
@@ -332,11 +332,12 @@
   (load-pubkeys)
   [:div
    (render-modal-profile)
-   (if (empty? @users)
-     (render-not-found)
-     [:div
-      (render-top-search)
-      (render-table)])])
+
+   (cond (= @users nil) (render-start-searching)
+         (empty? @users) (render-not-found)
+         :else [:div
+                (render-top-search)
+                (render-table)])])
 
 
 ;; -------------------------
